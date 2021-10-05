@@ -1,0 +1,15 @@
+{
+  "name": "gh-actions-hp",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "GH_ORG= GH_TOKEN= node index.js > test.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ofry Linkovsky <ofryli@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/github": "^5.0.0"
+  }
+}

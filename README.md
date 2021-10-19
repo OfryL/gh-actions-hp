@@ -2,7 +2,7 @@
 ## config
 
 ### env
-* GH_TOKEN: string = your personal auth token with the right privilage
+* GH_TOKEN: string = your personal auth token with the right privilege
 * GH_ORG: string = your org username
 
 ## running

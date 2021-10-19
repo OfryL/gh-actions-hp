@@ -1,0 +1,45 @@
+{
+  "private": true,
+  "entry": {
+    "index": "./index.js"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "antd": "^4.16.13",
+    "lodash": "^4.17.21",
+    "moment": "^2.19.3",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "styled-components": "^5.3.1"
+  },
+  "devDependencies": {
+    "atool-build": "^0.9.0",
+    "atool-test-mocha": "^0.1.4",
+    "babel-eslint": "^7.0.0",
+    "babel-plugin-import": "^1.0.1",
+    "babel-plugin-transform-runtime": "^6.8.0",
+    "babel-runtime": "^6.9.2",
+    "dora": "0.4.x",
+    "dora-plugin-webpack": "^0.8.1",
+    "dora-plugin-webpack-hmr": "^0.2.1",
+    "eslint": "^3.8.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "expect": "^1.20.1",
+    "pre-commit": "1.x",
+    "redbox-react": "^1.2.6",
+    "webpack-hot-middleware": "^2.25.1"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "scripts": {
+    "build": "atool-build",
+    "lint": "eslint --ext .js,.jsx src/",
+    "start": "dora --plugins webpack",
+    "dev": "dora --plugins webpack-hmr",
+    "test": "atool-test-mocha ./**/__tests__/*-test.js"
+  }
+}

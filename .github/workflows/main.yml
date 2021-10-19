@@ -1,0 +1,44 @@
+
+name: Get gh actions
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: "5 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.15.5
+          registry-url: https://registry.npmjs.org
+
+      - name: Install NPM dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Run fetcher
+        run: node index.js > ./actions.json
+        env:
+          GH_TOKEN: ${{secrets.GH_TOKEN}}
+          GH_ORG: ${{secrets.GH_ORG}}
+          DEBUG: ${{secrets.DEBUG}}
+
+      - name: Commit to the repo
+        run: |
+          git config --global user.name "ofryl/gh-actions-hp"
+          git config --global user.email "gh-actions-hp[bot]@ofryl.github.io"
+          git add .
+          # "echo" returns true so the build succeeds, even if no changed files
+          git commit -m 'Update generated files' || echo
+          git push

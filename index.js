@@ -1,9 +1,13 @@
+const debug = require('debug')('ghRepo');
 const github = require('@actions/github');
 
 const { env } = process;
 const myToken = env.GH_TOKEN || '';
 const ORG = env.GH_ORG || '';
-const WORKFLOWS_PER_REPO = 2;
+const WORKFLOWS_PER_REPO = 10;
+
+const ignoreRepos = [
+];
 
 const serializeWorkflow = (repo) => workFlow => ({
   _repo_name: repo.name,
@@ -31,12 +35,13 @@ const serializeWorkflow = (repo) => workFlow => ({
   } : {}),
 });
 
-const getRepos = async () => {
+const getRepos = async (octokit) => {
   const allRes = [];
   let page = 0;
   let res = ['init'];
 
   while (res && res.length !== 0) {
+    debug(`getRepos page ${page}`);
     ({data: res} = await octokit.rest.repos.listForOrg({
       org: ORG,
       type: 'all',
@@ -51,9 +56,12 @@ const getRepos = async () => {
 
 const getWorkflowsForRepos = async function (repos, octokit) {
   const res = {};
-  for (i = 0; i < repos.length; i++) {
-    const repo = repos[i];
+  const noWorkFlowsRepos = ignoreRepos;
+  const filteredRepos = repos.filter(r => !noWorkFlowsRepos.includes(r.full_name));
+  for (i = 0; i < filteredRepos.length; i++) {
+    const repo = filteredRepos[i];
     const {name, full_name} = repo;
+    debug(`getWorkflowsForRepos repo ${full_name}`);
     const {data: workFlows} = await octokit.rest.actions.listWorkflowRunsForRepo({
       owner: ORG,
       repo: name,
@@ -61,9 +69,11 @@ const getWorkflowsForRepos = async function (repos, octokit) {
     });
     if (workFlows.total_count > 0) {
       res[full_name] = workFlows.workflow_runs.map(serializeWorkflow(repo));
+    } else {
+      noWorkFlowsRepos.push(full_name);
     }
   }
-  return res;
+  return [res, noWorkFlowsRepos];
 };
 
 async function run() {
@@ -71,9 +81,9 @@ async function run() {
   const octokit = github.getOctokit(myToken);
 
   try {
-    const repos = await getRepos();
-    const repoToWorkflows = await getWorkflowsForRepos(repos, octokit);
-    console.log(JSON.stringify({ repoToWorkflows }));
+    const repos = await getRepos(octokit);
+    const [repoToWorkflows, noFlows] = await getWorkflowsForRepos(repos, octokit);
+    console.log(JSON.stringify({ noFlows, repoToWorkflows }));
 
   } catch (e) {
     console.error(e)
